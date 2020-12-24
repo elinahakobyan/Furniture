@@ -19,6 +19,29 @@ export class Message extends Text {
       this.position.set(portraitX, portraitY);
     }
   }
+
+  // scaleChanging() {
+  //   let x;
+  //   let y;
+  //   if (this.pageOrintation === 'landscape') {
+  //     x = this.pageW * 0.4;
+  //     y = this.pageH * 0.7;
+  //   } else {
+  //     x = this.pageW * 0.7;
+  //     y = this.pageH * 0.3;
+  //   }
+  //   let size;
+  //   const w = this._image.width;
+  //   const h = this._image.height;
+  //   console.warn(w);
+  //   if (x / w > y / h) {
+  //     size = y / h;
+  //   } else {
+  //     size = x / w;
+  //   }
+
+  //   this.scale.set(size);
+  // }
 }
 export class Style extends TextStyle {
   constructor() {

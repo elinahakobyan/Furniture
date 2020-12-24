@@ -33,7 +33,7 @@ export class Image extends Container {
 
   buildImage() {
     this.decidePosition(this.portraitX, this.portraitY, this.landscapeX, this.landscapeY);
-    this.scaleChanging();
+    // this.scaleChanging();
   }
 
   decidePosition(portraitX, portraitY, landscapeX, landscapeY) {
@@ -52,20 +52,24 @@ export class Image extends Container {
     if (this.pageOrintation === 'landscape') {
       x = this.pageW * 0.4;
       y = this.pageH * 0.8;
+     console.warn(this.width,this.height);
+      
     } else {
       x = this.pageW * 0.8;
       y = this.pageH * 0.4;
+     console.warn(this.width,this.height);
+
     }
     let size;
     const w = this._image.width;
     const h = this._image.height;
-    console.warn(w);
+     console.warn(this.width,this.height);
     if (x / w > y / h) {
       size = y / h;
     } else {
       size = x / w;
     }
 
-    this.scale.set(size);
+    this.scale.set(size*y/x);
   }
 }
