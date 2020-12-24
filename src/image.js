@@ -1,45 +1,71 @@
-import { Container, Texture } from 'pixi.js';
+import { Container, Sprite, Texture } from 'pixi.js';
 import { Message, Style } from './text.js';
 
-export class Container extends Container {
-  constructor(image, text, pageW, pageH) {
+export class Image extends Container {
+  constructor(image, text, style, pageW, pageH, pageOrintation, portraitX, portraitY, landscapeX, landscapeY) {
     super();
-    this.anchor.set(0.5);
-    this.image = Texture.from(image);
-    this.text = new Message(text, this.style);
-    this.pagew = pageW;
+    this._image = new Sprite.from(image);
+    this.style = style;
+    this._text = new Message(text, this.style);
+    this.pageW = pageW;
     this.pageH = pageH;
+    this.pageOrintation = pageOrintation;
+    this.portraitX = portraitX;
+    this.portraitY = portraitY;
+    this.landscapeX = landscapeX;
+    this.landscapeY = landscapeY;
     this.build();
+    this.addChild(this._image);
+    this.addChild(this._text);
+  }
+
+  get image() {
+    return this._image;
+  }
+
+  get text() {
+    return this._text;
   }
 
   build() {
     this.buildImage();
-    this.scaleChanging();
   }
 
   buildImage() {
-    const portraitX = this.pageW / 2;
-    const portraitY = (this.pageH * 9) / 20;
-    const landscapeX = this.pageW / 5;
-    const landscapeY = (this.pageH * 9) / 20;
-    this.decidePosition(this, portraitX, portraitY, landscapeX, landscapeY);
-    t;
-    his.scaleChanging(table);
+    this.decidePosition(this.portraitX, this.portraitY, this.landscapeX, this.landscapeY);
+    this.scaleChanging();
   }
+
   decidePosition(portraitX, portraitY, landscapeX, landscapeY) {
-    if (this.pageOrintation() === 'landscape') {
-      element.position.set(landscapeX, landscapeY);
+    if (this.pageOrintation === 'landscape') {
+      this.position.set(landscapeX, landscapeY);
+      return { x: landscapeX, y: landscapeX };
     } else {
-      element.position.set(portraitX, portraitY);
+      this.position.set(portraitX, portraitY);
+      return { x: portraitX, y: portraitY };
     }
   }
-  scaleChanging(this) {
-    if (this.pageW < this.width || this.height < this.height) {
-      if (this.pageW > this.height) {
-        this.scale.set(this.height / this.width);
-      } else {
-        this.scale.set(this.pageW / this.width);
-      }
+
+  scaleChanging() {
+    let x;
+    let y;
+    if (this.pageOrintation === 'landscape') {
+      x = this.pageW * 0.4;
+      y = this.pageH * 0.8;
+    } else {
+      x = this.pageW * 0.8;
+      y = this.pageH * 0.4;
     }
+    let size;
+    const w = this._image.width;
+    const h = this._image.height;
+    console.warn(w);
+    if (x / w > y / h) {
+      size = y / h;
+    } else {
+      size = x / w;
+    }
+
+    this.scale.set(size);
   }
 }
