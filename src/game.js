@@ -61,7 +61,7 @@ export class Game extends Application {
   }
 
   pageOrintation() {
-    if (this.width > this.height) {
+    if (this.width > this.height - 150) {
       return 'landscape';
     }
     return 'portrait';
@@ -97,14 +97,13 @@ export class Game extends Application {
       this.pageOrintation()
     );
     const bg = container.image;
-    console.warn(container.image);
+    console.warn(container.text);
     bg.width = this.width;
-    bg.height = this.height / 10;
+    bg.height = this.height / 13;
     container.decidePosition(this.width / 2, this.height * 0.2, this.width * 0.5, this.height * 0.95);
-
+    // container.scaleChanging(0.2);
     bg.anchor.set(0.5);
     container.text.anchor.set(0.5);
-
     this.stage.addChild(container);
   }
 

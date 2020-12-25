@@ -39,10 +39,8 @@ export class Image extends Container {
   decidePosition(portraitX, portraitY, landscapeX, landscapeY) {
     if (this.pageOrintation === 'landscape') {
       this.position.set(landscapeX, landscapeY);
-      return { x: landscapeX, y: landscapeX };
     } else {
       this.position.set(portraitX, portraitY);
-      return { x: portraitX, y: portraitY };
     }
   }
 

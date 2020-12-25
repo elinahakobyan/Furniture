@@ -12,6 +12,7 @@ export class Message extends Text {
     this.landscapeX = landscapeX;
     this.landscapeY = landscapeY;
   }
+
   decidePosition(portraitX, portraitY, landscapeX, landscapeY) {
     if (this.pageOrintation === 'landscape') {
       this.position.set(landscapeX, landscapeY);
