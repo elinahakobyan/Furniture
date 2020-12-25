@@ -1,7 +1,10 @@
+import * as PIXI from 'pixi.js';
 import { Application, Container, Sprite, Texture } from 'pixi.js';
 
 import { Image } from './image.js';
 import { Message, Style } from './text.js';
+import { gsap, Bounce } from 'gsap';
+import { PixiPlugin } from 'gsap/PixiPlugin';
 
 export class Game extends Application {
   constructor() {
@@ -10,17 +13,14 @@ export class Game extends Application {
       height: window.innerHeight,
       backgroundColor: 0xffffff,
     });
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
+    this.hand;
+    this.smthisdoing = false;
     document.body.appendChild(this.view);
+    gsap.registerPlugin(PixiPlugin);
+    PixiPlugin.registerPIXI(PIXI);
     this._loadAssets();
-    this.page1 = {
-      image1: 'table1k',
-      text1: ' KKW\n13173',
-      image2: 'table1k',
-      text2: 'Worlds Away \n    Jenny S ',
-    };
   }
+
   _loadAssets() {
     this.loader
       .add('burgundyDivan', 'assets/ui/burgundyDivan.png')
@@ -46,22 +46,52 @@ export class Game extends Application {
   }
 
   _onLoadComplete() {
+    this._rebuildStage();
+  }
+
+  _rebuildStage() {
+    this.stage.destroy({ children: true });
+    this.stage = new Container();
+
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+    this.page1 = {
+      image1: 'table1',
+      text1: '  KKW\n13173',
+      image2: 'table2',
+      text2: 'Worlds Away \n    Jenny S ',
+    };
+    this.page2 = {
+      image1: 'chair4',
+      text1: '      DWR\nReid Ottoman',
+      image2: 'chair3',
+      text2: '       DWR \n Womb Ottoman ',
+    };
+    this.page3 = {
+      image1: 'logo',
+      image2: 'burgundyDivan',
+      image2: 'grayDivan',
+      image2: 'orangeDivan',
+      image2: 'torquoiseDivan',
+    };
+
     this.build();
   }
 
   build() {
     this.buildTitle();
-    this.buildBg();
-    this.createPage1(this.page1);
+    // this.buildBg();
+    this.createPage(this.page1);
   }
 
-  createPage1(page1) {
-    this.buildTable(page1.image1, page1.text1);
-    this.buildSecondTable(page1.image2, page1.text2);
+  createPage(page) {
+    this.buildTable(page.image1, page.text1);
+    this.buildSecondTable(page.image2, page.text2);
+    this.buildHand();
   }
 
   pageOrintation() {
-    if (this.width > this.height - 150) {
+    if (this.width > this.height - 200) {
       return 'landscape';
     }
     return 'portrait';
@@ -76,10 +106,11 @@ export class Game extends Application {
       this.height,
       this.pageOrintation(),
       this.width * 0.5,
-      this.height * 0.1,
+      this.height * 0.125,
       this.width * 0.5,
-      this.height * 0.15
+      this.height * 0.125
     );
+    this.scaleChanging(title);
     title.image.anchor.set(0.5);
     this.stage.addChild(title);
   }
@@ -94,17 +125,30 @@ export class Game extends Application {
       style,
       this.width,
       this.height,
-      this.pageOrintation()
+      this.pageOrintation(),
+      null,
+      null,
+      null,
+      null
     );
     const bg = container.image;
-    console.warn(container.text);
+    // console.warn(container.image);
     bg.width = this.width;
     bg.height = this.height / 13;
-    container.decidePosition(this.width / 2, this.height * 0.2, this.width * 0.5, this.height * 0.95);
-    // container.scaleChanging(0.2);
+    this.scaleChanging(container);
+    container.decidePosition(this.width / 2, this.height * 0.25, this.width * 0.5, this.height * 0.99);
     bg.anchor.set(0.5);
     container.text.anchor.set(0.5);
     this.stage.addChild(container);
+  }
+
+  tableChanging(table) {
+    this.scaleChanging(table);
+    table.image.anchor.set(0.5);
+    table.text.anchor.set(0.5);
+    table.interactive = true;
+    table.on('pointerdown', this.onClick.bind(this, table));
+    this.stage.addChild(table);
   }
 
   buildTable(nkar, text) {
@@ -120,14 +164,12 @@ export class Game extends Application {
       this.pageOrintation(),
       this.width / 2,
       this.height * 0.4,
-      this.width / 4,
-      this.height * 0.5
+      this.width * 0.25,
+      this.height * 0.5,
+      'first'
     );
-    table.image.anchor.set(0.5);
-    // console.warn(table.text);
-    table.text.decidePosition(0, table.image.height / 2, this.width / 2, table.image.height / 2);
-    table.text.anchor.set(0.5);
-    this.stage.addChild(table);
+    this.tableChanging(table);
+    table.text.decidePosition(0, (3 * table.image.height) / 6, 0, (3 * table.image.height) / 6);
   }
 
   buildSecondTable(nkar, text) {
@@ -143,13 +185,139 @@ export class Game extends Application {
       this.pageOrintation(),
       this.width / 2,
       this.height * 0.75,
-      this.width * 0.8,
-      this.height * 0.5
+      this.width * 0.75,
+      this.height * 0.5,
+      'second'
     );
-    table.image.anchor.set(0.5);
-    // console.warn(table.text);
-    table.text.decidePosition(0, table.image.height / 2, this.width / 2, table.image.height / 2);
-    table.text.anchor.set(0.5);
-    this.stage.addChild(table);
+    this.tableChanging(table);
+    table.text.decidePosition(0, (3 * table.image.height) / 5, 0, (3 * table.image.height) / 6);
+  }
+
+  onClick(table) {
+    if (!this.smthisdoing) {
+      this.smthisdoing = true;
+      this.hand.alpha = 0;
+      console.warn('aaaaaaaaaaaaaaaaaaaaaaaaaa');
+      const likePosition = this.likePosition(table);
+      let X = likePosition.x;
+      let Y = likePosition.y;
+      this.buildLike(X, Y);
+    }
+  }
+
+  likePosition(table) {
+    console.warn(table);
+    let X, Y;
+    if (this.pageOrintation() === 'landscape') {
+      if (table.dif === 'first') {
+        X = this.width * 0.25;
+        Y = this.height * 0.5;
+      } else {
+        X = this.width * 0.75;
+        Y = this.height * 0.5;
+      }
+    } else {
+      if (table.dif === 'first') {
+        X = this.width / 2;
+        Y = this.height * 0.4;
+      } else {
+        X = this.width / 2;
+        Y = this.height * 0.75;
+      }
+    }
+    return { x: X, y: Y };
+  }
+
+  buildLike(X, Y) {
+    const like = new Sprite.from('like');
+    this.stage.addChild(like);
+    like.anchor.set(0.5);
+    like.position.set(X, Y);
+    const tl = gsap.timeline({ repeatDelay: 1 });
+    tl.to(like, { pixi: { scaleX: 0.5, scaleY: 0.5 }, duration: 0.5 });
+    tl.to(like, {
+      pixi: { scaleX: 1, scaleY: 1 },
+      duration: 0.5,
+      onComplete: () => {
+        this.gotoNextPage();
+        this.stage.removeChild(like);
+        console.warn('nnnnnnnnnnnnnnnnnnnn');
+      },
+    });
+  }
+
+  buildHand() {
+    const hand = new Sprite.from('hand');
+    if (this.pageOrintation() === 'landscape') {
+      hand.position.set(this.width * 0.25, this.height);
+    } else {
+      hand.position.set(this.width / 2, this.height);
+    }
+    this.stage.addChild((this.hand = hand));
+    this.handAnimation(hand);
+  }
+
+  handAnimation(hand) {
+    let fromX, toX;
+    let fromY, toY;
+    if (this.pageOrintation() === 'landscape') {
+      fromX = this.width * 0.25;
+      fromY = this.height * 0.5;
+      toX = this.width * 0.75;
+      toY = this.height * 0.5;
+    } else {
+      fromX = this.width / 2;
+      fromY = this.height * 0.4;
+      toX = this.width / 2;
+      toY = this.height * 0.75;
+    }
+    const tl = gsap.timeline({ repeat: -1, repeatDelay: 1 });
+    tl.to(hand, { x: fromX, y: fromY, ease: Bounce, duration: 1, yoyo: true });
+    tl.to(hand, { pixi: { scaleX: 0.5, scaleY: 0.5 }, duration: 1 });
+    tl.to(hand, { pixi: { scaleX: 1, scaleY: 1 }, duration: 1 });
+    tl.to(hand, { x: toX, y: toY, ease: Bounce, duration: 1 });
+    tl.to(hand, { pixi: { scaleX: 0.5, scaleY: 0.5 }, duration: 1 });
+    tl.to(hand, { pixi: { scaleX: 1, scaleY: 1 }, duration: 1 });
+  }
+
+  scaleChanging(sprite) {
+    let x;
+    let y;
+    if (this.pageOrintation() === 'landscape') {
+      x = this.width * 0.4;
+      y = this.height * 0.8;
+    } else {
+      x = this.width * 0.8;
+      y = this.height * 0.4;
+    }
+    let size;
+    const w = sprite.image.width;
+    const h = sprite.image.height;
+    if (x / w > y / h) {
+      size = y / h;
+    } else {
+      size = x / w;
+    }
+
+    sprite.image.scale.set(size);
+    sprite.text.scale.set(size);
+  }
+
+  gotoSecondPage() {
+    this.gotoNextPage();
+    this.stage.removeChild(like);
+  }
+
+  gotoThirdPage() {
+    this.stage.removeChildren(0, 3);
+    this.createPage(this.page2);
+    this.smthisdoing = false;
+    this.stage.removeChild(like);
+  }
+
+  gotoNextPage() {
+    this.stage.removeChildren(1, 3);
+    this.createPage(this.page2);
+    this.smthisdoing = false;
   }
 }

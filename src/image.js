@@ -2,7 +2,7 @@ import { Container, Sprite, Texture } from 'pixi.js';
 import { Message, Style } from './text.js';
 
 export class Image extends Container {
-  constructor(image, text, style, pageW, pageH, pageOrintation, portraitX, portraitY, landscapeX, landscapeY) {
+  constructor(image, text, style, pageW, pageH, pageOrintation, portraitX, portraitY, landscapeX, landscapeY, dif) {
     super();
     this._image = new Sprite.from(image);
     this.style = style;
@@ -14,6 +14,7 @@ export class Image extends Container {
     this.portraitY = portraitY;
     this.landscapeX = landscapeX;
     this.landscapeY = landscapeY;
+    this.dif = dif;
     this.build();
     this.addChild(this._image);
     this.addChild(this._text);
@@ -33,7 +34,6 @@ export class Image extends Container {
 
   buildImage() {
     this.decidePosition(this.portraitX, this.portraitY, this.landscapeX, this.landscapeY);
-    this.scaleChanging();
   }
 
   decidePosition(portraitX, portraitY, landscapeX, landscapeY) {
@@ -42,28 +42,5 @@ export class Image extends Container {
     } else {
       this.position.set(portraitX, portraitY);
     }
-  }
-
-  scaleChanging() {
-    let x;
-    let y;
-    if (this.pageOrintation === 'landscape') {
-      x = this.pageW * 0.4;
-      y = this.pageH * 0.8;
-    } else {
-      x = this.pageW * 0.8;
-      y = this.pageH * 0.4;
-    }
-    let size;
-    const w = this._image.width;
-    const h = this._image.height;
-    console.warn(w);
-    if (x / w > y / h) {
-      size = y / h;
-    } else {
-      size = x / w;
-    }
-
-    this.scale.set(size);
   }
 }

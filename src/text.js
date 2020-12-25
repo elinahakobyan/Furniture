@@ -1,7 +1,7 @@
 import { Text, TextStyle } from 'pixi.js';
 
 export class Message extends Text {
-  constructor(text, style, pageOrintation, portraitX, portraitY, landscapeX, landscapeY) {
+  constructor(text, style, pageOrintation, portraitX, portraitY, landscapeX, landscapeY, pageW, pageH) {
     super(text, style);
 
     this.position.set(0, 0);
@@ -11,6 +11,7 @@ export class Message extends Text {
     this.portraitY = portraitY;
     this.landscapeX = landscapeX;
     this.landscapeY = landscapeY;
+    (this.pageW = this.width), (this.pageH = this.height);
   }
 
   decidePosition(portraitX, portraitY, landscapeX, landscapeY) {
@@ -21,6 +22,7 @@ export class Message extends Text {
     }
   }
 }
+
 export class Style extends TextStyle {
   constructor() {
     super();
