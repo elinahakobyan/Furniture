@@ -15,10 +15,12 @@ export class Game extends Application {
     });
     this.hand;
     this.smthisdoing = false;
+    this.asd=false
     document.body.appendChild(this.view);
     gsap.registerPlugin(PixiPlugin);
     PixiPlugin.registerPIXI(PIXI);
     this._loadAssets();
+    
   }
 
   _loadAssets() {
@@ -74,20 +76,23 @@ export class Game extends Application {
       image2: 'orangeDivan',
       image2: 'torquoiseDivan',
     };
+    this.pages=[this.page2,this.page3]
 
     this.build();
   }
 
   build() {
     this.buildTitle();
-    // this.buildBg();
+    this.buildBg();
     this.createPage(this.page1);
+
   }
 
   createPage(page) {
     this.buildTable(page.image1, page.text1);
     this.buildSecondTable(page.image2, page.text2);
     this.buildHand();
+
   }
 
   pageOrintation() {
@@ -132,7 +137,6 @@ export class Game extends Application {
       null
     );
     const bg = container.image;
-    // console.warn(container.image);
     bg.width = this.width;
     bg.height = this.height / 13;
     this.scaleChanging(container);
@@ -170,6 +174,7 @@ export class Game extends Application {
     );
     this.tableChanging(table);
     table.text.decidePosition(0, (3 * table.image.height) / 6, 0, (3 * table.image.height) / 6);
+   return table;
   }
 
   buildSecondTable(nkar, text) {
@@ -191,13 +196,14 @@ export class Game extends Application {
     );
     this.tableChanging(table);
     table.text.decidePosition(0, (3 * table.image.height) / 5, 0, (3 * table.image.height) / 6);
+   return table;
+
   }
 
   onClick(table) {
     if (!this.smthisdoing) {
       this.smthisdoing = true;
       this.hand.alpha = 0;
-      console.warn('aaaaaaaaaaaaaaaaaaaaaaaaaa');
       const likePosition = this.likePosition(table);
       let X = likePosition.x;
       let Y = likePosition.y;
@@ -239,9 +245,13 @@ export class Game extends Application {
       pixi: { scaleX: 1, scaleY: 1 },
       duration: 0.5,
       onComplete: () => {
-        this.gotoNextPage();
-        this.stage.removeChild(like);
-        console.warn('nnnnnnnnnnnnnnnnnnnn');
+        console.warn(this.smthisdoing);
+        if(this.asd){
+      this.stage.removeChild(like);
+          this.gotoThirdPage()
+        }else{
+      this.stage.removeChild(like);
+      this.gotoNextPage();}
       },
     });
   }
@@ -303,21 +313,41 @@ export class Game extends Application {
     sprite.text.scale.set(size);
   }
 
-  gotoSecondPage() {
-    this.gotoNextPage();
-    this.stage.removeChild(like);
-  }
-
-  gotoThirdPage() {
-    this.stage.removeChildren(0, 3);
-    this.createPage(this.page2);
-    this.smthisdoing = false;
-    this.stage.removeChild(like);
-  }
-
   gotoNextPage() {
     this.stage.removeChildren(1, 3);
-    this.createPage(this.page2);
     this.smthisdoing = false;
+    this.createPage(this.page2);
+    this.asd=true
   }
+
+  gotoThirdPage(){
+    this.stage.removeChildren(0,5)
+    this.createlastPage(this.page3)
+    this.smthisdoing=false;
+  }
+ createlastPage(page){
+   this.buildTitle()
+   this.buildBg()
+   this.buildSofa(page.image2,this.width*0.25,this.height*0.25,this.width*0.25,this.height*0.25)
+   this.buildSofa()
+   this.buildSofa()
+   this.buildSofa()
+ }
+ buildSofa(nkar,portraitX,portraitY,landscapeX,landscapeY){
+   const sofa=new Image(
+     nkar,
+     null,
+     null,
+     this.width,
+     this.height,
+     this.pageOrintation(),
+     portraitX,
+     portraitY,
+     landscapeX,
+      landscapeY
+   )
+   sofa.image.anchor.set(0.5)
+   this.scaleChanging(sofa);
+   this.stage.addChild(sofa)
+ }
 }
