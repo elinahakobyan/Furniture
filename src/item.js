@@ -1,7 +1,7 @@
 import { Container, Sprite, Texture } from 'pixi.js';
 import { Message, Style } from './text.js';
 
-export class Image extends Container {
+export class Item extends Container {
   constructor(image, text, style, pageW, pageH, pageOrintation, portraitX, portraitY, landscapeX, landscapeY, dif) {
     super();
     this._image = new Sprite.from(image);
