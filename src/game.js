@@ -145,13 +145,13 @@ export class Game extends Application {
       null
     );
     const bg = container.image;
-    bg.width = this.width;
-    bg.height = this.height / 13;
-    this.scaleChanging(container);
     container.decidePosition(this.width / 2, this.height * 0.25, this.width * 0.5, this.height * 0.99);
+    this.scaleChanging(container);
     bg.anchor.set(0.5);
     container.text.anchor.set(0.5);
     this.stage.addChild(container);
+    bg.width = this.width;
+    bg.height = this.height / 13;
   }
 
   tableChanging(table) {
@@ -318,7 +318,7 @@ export class Game extends Application {
     }
 
     sprite.image.scale.set(size);
-    // sprite.text.scale.set(size);
+    sprite.text.scale.set(size);
   }
 
   gotoNextPage() {
@@ -336,7 +336,7 @@ export class Game extends Application {
 
   createlastPage(page) {
     this.buildTitle(this.width * 0.5, this.height * 0.125, this.width * 0.5, this.height * 0.3);
-    // this.buildBg();
+    this.buildBg();
     this.buildRightSofas(
       page.image3,
       this.pageOrintation(),
@@ -357,7 +357,7 @@ export class Game extends Application {
       page.image4,
       this.pageOrintation(),
       this.width * 1.08,
-      this.height * 0.75,
+      this.height * 0.70,
       this.width * 0.5 - this.title.width,
       this.height * 0.6
     );
@@ -365,17 +365,17 @@ export class Game extends Application {
       page.image5,
       this.pageOrintation(),
       this.width * 0.001,
-      this.height * 0.75,
+      this.height * 0.70,
       this.width * 0.5 + this.title.width,
       this.height * 0.6
     );
-    // this.buildButton();
-    // this.blueButton();
+    this.buildButton();
+    this.blueButton();
+
   }
 
   buildRightSofas(nkar, pageOrintation, portraitX, portraitY, landscapeX, landscapeY, x, y) {
     const sofa = new Sofa(nkar, pageOrintation, portraitX, portraitY, landscapeX, landscapeY, x, y);
-    console.warn(sofa.height);
     this.changeScale(sofa);
     sofa.pivot.set(sofa.image.width, 0.5 * sofa.image.height);
     this.stage.addChild(sofa);
@@ -383,32 +383,26 @@ export class Game extends Application {
 
   buildLeftSofas(nkar, pageOrintation, portraitX, portraitY, landscapeX, landscapeY, x, y) {
     const sofa = new Sofa(nkar, pageOrintation, portraitX, portraitY, landscapeX, landscapeY, x, y);
-    console.warn(sofa.height);
     this.changeScale(sofa);
     sofa.pivot.set(sofa.image.width, 0.5 * sofa.image.height);
     this.stage.addChild(sofa);
   }
 
   buildButton() {
-    const button = new Item(
-      'red',
-      null,
-      null,
-      this.width,
-      this.height,
-      this.pageOrintation(),
-      this.width * 0.5,
-      this.height * 0.85,
-      this.width * 0.51,
-      this.height * 0.5
-    );
-    this.scaleChanging(button);
-    button.image.anchor.set(0.5);
+    const button = new Sprite.from('red');
+    if (this.pageOrintation() === 'landscape') {
+      button.position.set(this.width * 0.51,this.height * 0.5);
+    } else {
+      button.position.set(this.width * 0.5,this.height * 0.85);
+    }
+    button.anchor.set(0.5);
     this.stage.addChild(button);
+    this.buttonAnimation(button)
+    
   }
 
   blueButton() {
-    const button = new Item(
+   const button = new Item(
       'blue',
       null,
       null,
@@ -418,12 +412,23 @@ export class Game extends Application {
       this.width * 0.5,
       this.height * 0.95,
       this.width * 0.5,
-      this.height * 0.82
+      this.height * 0.67
     );
-    // this.scaleChanging(button);
     button.image.anchor.set(0.5);
     this.stage.addChild(button);
+    this.scaleChanging(button);
+    if(this.pageOrintation()==='landscape'){
+      button.height=this.height*0.12
+      button.width=this.width*0.12
+    }else{
+      button.height=this.width*0.12
+      button.width=this.height*0.12
+    }
+
+
   }
+
+  
 
   changeScale(sprite) {
     let x;
@@ -447,6 +452,14 @@ export class Game extends Application {
     }
 
     sprite.scale.set(size);
-    // sprite.text.scale.set(size);
+    return size
+  }
+   
+  buttonAnimation(button){
+    const tl = gsap.timeline({ repeat: -1});
+  const  scale=this.changeScale(button)
+  console.warn(scale);
+    tl.to(button, { pixi: { scaleX:scale*0.95, scaleY:scale*0.95}, duration: 0.8 });
+    tl.to(button, { pixi: { scaleX: scale, scaleY: scale }, duration: 0.8});
   }
 }
