@@ -14,7 +14,6 @@ export class Game extends Application {
       height: window.innerHeight,
       backgroundColor: 0xffffff,
     });
-    this.hand;
     this.smthisdoing = false;
     this.asd = false;
     document.body.appendChild(this.view);
@@ -54,6 +53,9 @@ export class Game extends Application {
   }
 
   _rebuildStage() {
+    gsap.killTweensOf(this.hand);
+    gsap.killTweensOf(this._fgh);
+    this.asd = false;
     this.stage.destroy({ children: true });
     this.stage = new Container();
 
@@ -78,16 +80,14 @@ export class Game extends Application {
       image4: 'torquoiseDivan',
       image5: 'orangeDivan',
     };
-    this.pages = [this.page2, this.page3];
-
     this.build();
   }
 
   build() {
-    // this.buildTitle(this.width * 0.5, this.height * 0.125, this.width * 0.5, this.height * 0.125);
-    // this.buildBg();
-    this.createlastPage(this.page3);
-    // this.createPage(this.page1);
+    this.buildTitle(this.width * 0.5, this.height * 0.125, this.width * 0.5, this.height * 0.125);
+    this.buildBg('Tap on the piece you love!');
+    // this.createlastPage(this.page3);
+    this.createPage(this.page1);
   }
 
   createPage(page) {
@@ -96,7 +96,7 @@ export class Game extends Application {
       page.image2,
       page.text2,
       this.width / 2,
-      this.height * 0.75,
+      this.height * 0.77,
       this.width * 0.75,
       this.height * 0.5
     );
@@ -104,7 +104,7 @@ export class Game extends Application {
   }
 
   pageOrintation() {
-    if (this.width > this.height - 200) {
+    if (this.width > this.height) {
       return 'landscape';
     }
     return 'portrait';
@@ -123,39 +123,38 @@ export class Game extends Application {
       landscapeX,
       landscapeY
     );
-    this.scaleChanging(this.title);
+    this.changeScale(this.title, 0.3, 0.31, 0.7, 0.4);
     this.title.image.anchor.set(0.5);
     this.stage.addChild(this.title);
   }
 
-  buildBg() {
+  buildBg(text) {
+    console.warn('aa');
+    const container = new Container();
+    console.warn(container);
     const style = new Style();
     style.fontSize = 43;
-    style.fill = ' 0x000000';
-    const container = new Item(
-      'nkar',
-      'Tap on the piece you love! ',
-      style,
-      this.width,
-      this.height,
-      this.pageOrintation(),
-      null,
-      null,
-      null,
-      null
-    );
-    const bg = container.image;
-    container.decidePosition(this.width / 2, this.height * 0.25, this.width * 0.5, this.height * 0.99);
-    this.scaleChanging(container);
-    bg.anchor.set(0.5);
-    container.text.anchor.set(0.5);
+    style.fill = ' #ffffff';
+    const string = new Message(text, style);
+    string.anchor.set(0.5, -0.5);
+    string.x = this.width / 2;
+    // container.pivot.set(this.width * 0.5, this.height * 0.1 * 0.5);
+    if (this.pageOrintation() === 'landscape') {
+      container.position.set(0, this.height * 0.97);
+    } else {
+      container.position.set(0, this.height * 0.2);
+    }
+    const gr = new PIXI.Graphics();
+    gr.beginFill(0x537f7e);
+    gr.drawRect(0, 0, this.width, this.height * 0.1);
+    gr.endFill();
+    container.addChild(gr);
+    container.addChild(string);
     this.stage.addChild(container);
-    bg.width = this.width;
-    bg.height = this.height / 13;
   }
 
   tableChanging(table) {
-    this.scaleChanging(table);
+    this.changeScale(table, 0.5, 0.6, 0.7, 0.5);
     table.image.anchor.set(0.5);
     table.text.anchor.set(0.5);
     table.interactive = true;
@@ -219,7 +218,6 @@ export class Game extends Application {
   }
 
   likePosition(table) {
-    // console.warn(table);
     let X, Y;
     if (this.pageOrintation() === 'landscape') {
       if (table.dif === 'first') {
@@ -243,16 +241,20 @@ export class Game extends Application {
 
   buildLike(X, Y) {
     const like = new Sprite.from('like');
-    this.stage.addChild(like);
     like.anchor.set(0.5);
     like.position.set(X, Y);
+    this.likeAnimation(like);
+    this.stage.addChild(like);
+  }
+
+  likeAnimation(like) {
+    const scale = this.changeScale(like, 0.2, 0.2, 0.3, 0.3);
     const tl = gsap.timeline({ repeatDelay: 1 });
-    tl.to(like, { pixi: { scaleX: 0.5, scaleY: 0.5 }, duration: 0.5 });
+    tl.to(like, { pixi: { scaleX: 0.5 * scale, scaleY: 0.5 * scale }, duration: 0.5 });
     tl.to(like, {
-      pixi: { scaleX: 1, scaleY: 1 },
+      pixi: { scaleX: scale, scaleY: scale },
       duration: 0.5,
       onComplete: () => {
-        // console.warn(this.smthisdoing);
         if (this.asd) {
           this.stage.removeChild(like);
           this.gotoThirdPage();
@@ -289,36 +291,14 @@ export class Game extends Application {
       toX = this.width / 2;
       toY = this.height * 0.75;
     }
+    const scale = this.changeScale(hand, 0.1, 0.2, 0.2, 0.3);
     const tl = gsap.timeline({ repeat: -1, repeatDelay: 1 });
     tl.to(hand, { x: fromX, y: fromY, ease: Bounce, duration: 1, yoyo: true });
-    tl.to(hand, { pixi: { scaleX: 0.5, scaleY: 0.5 }, duration: 1 });
-    tl.to(hand, { pixi: { scaleX: 1, scaleY: 1 }, duration: 1 });
+    tl.to(hand, { pixi: { scaleX: scale * 0.5, scaleY: scale * 0.5 }, duration: 1 });
+    tl.to(hand, { pixi: { scaleX: scale, scaleY: scale }, duration: 1 });
     tl.to(hand, { x: toX, y: toY, ease: Bounce, duration: 1 });
-    tl.to(hand, { pixi: { scaleX: 0.5, scaleY: 0.5 }, duration: 1 });
-    tl.to(hand, { pixi: { scaleX: 1, scaleY: 1 }, duration: 1 });
-  }
-
-  scaleChanging(sprite) {
-    let x;
-    let y;
-    if (this.pageOrintation() === 'landscape') {
-      x = this.width * 0.4;
-      y = this.height * 0.8;
-    } else {
-      x = this.width * 0.8;
-      y = this.height * 0.4;
-    }
-    let size;
-    const w = sprite.image.width;
-    const h = sprite.image.height;
-    if (x / w > y / h) {
-      size = y / h;
-    } else {
-      size = x / w;
-    }
-
-    sprite.image.scale.set(size);
-    sprite.text.scale.set(size);
+    tl.to(hand, { pixi: { scaleX: scale * 0.5, scaleY: scale * 0.5 }, duration: 1 });
+    tl.to(hand, { pixi: { scaleX: scale, scaleY: scale }, duration: 1 });
   }
 
   gotoNextPage() {
@@ -336,7 +316,7 @@ export class Game extends Application {
 
   createlastPage(page) {
     this.buildTitle(this.width * 0.5, this.height * 0.125, this.width * 0.5, this.height * 0.3);
-    this.buildBg();
+    this.buildBg('Keep exploring the catalog!');
     this.buildRightSofas(
       page.image3,
       this.pageOrintation(),
@@ -356,34 +336,33 @@ export class Game extends Application {
     this.buildLeftSofas(
       page.image4,
       this.pageOrintation(),
-      this.width * 1.08,
-      this.height * 0.70,
+      this.width * 1,
+      this.height * 0.7,
       this.width * 0.5 - this.title.width,
-      this.height * 0.6
+      this.height * 0.69
     );
     this.buildRightSofas(
       page.image5,
       this.pageOrintation(),
-      this.width * 0.001,
-      this.height * 0.70,
+      this.width * 0.01,
+      this.height * 0.7,
       this.width * 0.5 + this.title.width,
-      this.height * 0.6
+      this.height * 0.69
     );
     this.buildButton();
     this.blueButton();
-
   }
 
   buildRightSofas(nkar, pageOrintation, portraitX, portraitY, landscapeX, landscapeY, x, y) {
     const sofa = new Sofa(nkar, pageOrintation, portraitX, portraitY, landscapeX, landscapeY, x, y);
-    this.changeScale(sofa);
+    this.changeScale(sofa, 0.3, 0.31, 0.7, 0.4);
     sofa.pivot.set(sofa.image.width, 0.5 * sofa.image.height);
     this.stage.addChild(sofa);
   }
 
   buildLeftSofas(nkar, pageOrintation, portraitX, portraitY, landscapeX, landscapeY, x, y) {
     const sofa = new Sofa(nkar, pageOrintation, portraitX, portraitY, landscapeX, landscapeY, x, y);
-    this.changeScale(sofa);
+    this.changeScale(sofa, 0.3, 0.31, 0.7, 0.4);
     sofa.pivot.set(sofa.image.width, 0.5 * sofa.image.height);
     this.stage.addChild(sofa);
   }
@@ -391,18 +370,17 @@ export class Game extends Application {
   buildButton() {
     const button = new Sprite.from('red');
     if (this.pageOrintation() === 'landscape') {
-      button.position.set(this.width * 0.51,this.height * 0.5);
+      button.position.set(this.width * 0.5, this.height * 0.59);
     } else {
-      button.position.set(this.width * 0.5,this.height * 0.85);
+      button.position.set(this.width * 0.5, this.height * 0.87);
     }
     button.anchor.set(0.5);
-    this.stage.addChild(button);
-    this.buttonAnimation(button)
-    
+    this.buttonAnimation(button);
+    this.stage.addChild((this._fgh = button));
   }
 
   blueButton() {
-   const button = new Item(
+    const button = new Item(
       'blue',
       null,
       null,
@@ -412,54 +390,49 @@ export class Game extends Application {
       this.width * 0.5,
       this.height * 0.95,
       this.width * 0.5,
-      this.height * 0.67
+      this.height * 0.75
     );
+    button.image.interactive = true;
+    button.image.on('pointerdown', () => {
+      this._rebuildStage();
+    });
     button.image.anchor.set(0.5);
     this.stage.addChild(button);
-    this.scaleChanging(button);
-    if(this.pageOrintation()==='landscape'){
-      button.height=this.height*0.12
-      button.width=this.width*0.12
-    }else{
-      button.height=this.width*0.12
-      button.width=this.height*0.12
-    }
-
-
+    this.changeScale(button, 0.2, 0.1, 0.15, 0.2);
   }
 
-  
-
-  changeScale(sprite) {
+  changeScale(sprite, lanW, lanH, porX, porY) {
     let x;
     let y;
     if (this.pageOrintation() === 'landscape') {
-      x = this.width * 0.3;
-      y = this.height * 0.3;
+      x = this.width * lanW;
+      y = this.height * lanH;
     } else {
-      x = this.width * 0.8;
-      y = this.height * 0.4;
+      x = this.width * porX;
+      y = this.height * porY;
     }
     let size;
     const w = sprite.width;
     const h = sprite.height;
-    console.warn(this.height / h);
 
     if (x / w > y / h) {
       size = y / h;
     } else {
       size = x / w;
     }
-
+    if (size >= 1) {
+      size = 1;
+    }
     sprite.scale.set(size);
-    return size
+    console.warn(size);
+    return size;
   }
-   
-  buttonAnimation(button){
-    const tl = gsap.timeline({ repeat: -1});
-  const  scale=this.changeScale(button)
-  console.warn(scale);
-    tl.to(button, { pixi: { scaleX:scale*0.95, scaleY:scale*0.95}, duration: 0.8 });
-    tl.to(button, { pixi: { scaleX: scale, scaleY: scale }, duration: 0.8});
+
+  buttonAnimation(button) {
+    const tl = gsap.timeline({ repeat: -1 });
+    const scale = this.changeScale(button, 0.3, 0.15, 0.5, 0.2);
+    console.warn(scale);
+    tl.to(button, { pixi: { scaleX: scale * 0.92, scaleY: scale * 0.92 }, duration: 0.8 });
+    tl.to(button, { pixi: { scaleX: scale, scaleY: scale }, duration: 0.8 });
   }
 }
